@@ -35,6 +35,21 @@ const handleTest = async (request) => {
   cppPrint()
   return new Response(add(1, 2))
 }
+const handleGetPointClouds = async (request) => {
+  const pointClouds = Deno.readDirSync('./pointClouds')
+  const pointCloudsArray = []
+
+  for (const pointCloud of pointClouds) {
+    pointCloudsArray.push(pointCloud.name)
+  }
+
+  return new Response(JSON.stringify(pointCloudsArray))
+}
+const handleDownloadPointCloud = async (request, urlPatternResult) => {
+  const name = urlPatternResult.pathname.groups.name
+  const pointCloud = Deno.readFileSync(`./pointClouds/${name}`)
+  return new Response(pointCloud, { headers: { 'Content-Type': 'application/octet-stream' } })
+}
 const urlMapping = [
   {
     method: 'POST',
@@ -51,6 +66,16 @@ const urlMapping = [
     pattern: new URLPattern({ pathname: '/test' }),
     fn: handleTest
   },
+  {
+    method: 'GET',
+    pattern: new URLPattern({ pathname: '/pointclouds' }),
+    fn: handleGetPointClouds
+  },
+  {
+    method: 'GET',
+    pattern: new URLPattern({ pathname: '/pointcloud/:name' }),
+    fn: handleDownloadPointCloud
+  }
 ]
 
 const handleRequest = async (request) => {
