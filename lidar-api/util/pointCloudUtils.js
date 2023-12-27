@@ -15,6 +15,10 @@ export const exportToPly = (pointCloud) => {
     });
     
     // write the ply file to a folder pointClouds
-    Deno.writeTextFileSync(`./pointClouds/pointCloud${Date.now()}.ply`, plyString);
+    // the file name is the date in the format dd-mm-yyyy-hh-mm-ss
+    const date = new Date();
+    const dateString = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`;
+
+    Deno.writeTextFileSync(`./pointClouds/pointCloud${dateString}.ply`, plyString);
     console.log('ply file written')
 }

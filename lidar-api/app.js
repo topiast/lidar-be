@@ -14,21 +14,26 @@ const handlePostRawLidarData = async (request) => {
   // console.log('firstPoint', firstPoint)
   // console.log('result', result)
 
+  data.forEach(element => {
+    console.log('angle: ', element[1])
+  });
+  console.log('data length: ', data.length)
+
   const points = data.map((dataPoint) => { return convertToPoint(Number(dataPoint[1]), 0.0, Number(dataPoint[0])) })
   // console.log('points', points)
   
-  if (cloudSize < 1000){ 
-    console.log('adding to point cloud')
-    poinCloud.push(...points)
-    cloudSize += points.length
-  } else {
-    console.log('exporting to ply')
-    exportToPly(poinCloud)
-    poinCloud = []
-    cloudSize = 0
-  }
+  console.log('adding to point cloud')
+  poinCloud.push(...points)
+  cloudSize += points.length
 
 
+
+  return new Response('OK')
+}
+const handleLidarStop = async (request) => {
+  exportToPly(poinCloud)
+  poinCloud = []
+  cloudSize = 0
   return new Response('OK')
 }
 const handleTest = async (request) => {
@@ -50,11 +55,26 @@ const handleDownloadPointCloud = async (request, urlPatternResult) => {
   const pointCloud = Deno.readFileSync(`./pointClouds/${name}`)
   return new Response(pointCloud, { headers: { 'Content-Type': 'application/octet-stream' } })
 }
+const handleLidarReset = async (request) => {
+  poinCloud = []
+  cloudSize = 0
+  return new Response('OK')
+}
 const urlMapping = [
   {
     method: 'POST',
     pattern: new URLPattern({ pathname: '/lidar' }),
     fn: handlePostRawLidarData
+  },
+  {
+    method: 'GET',
+    pattern: new URLPattern({ pathname: '/lidar/reset' }),
+    fn: handleLidarReset
+  },
+  {
+    method: 'GET',
+    pattern: new URLPattern({ pathname: '/lidar/stop' }),
+    fn: handleLidarStop
   },
   {
     method: 'GET',

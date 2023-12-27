@@ -36,7 +36,7 @@ services:
     restart: "no"
     volumes:
       - ./lidar-ui/:/app
-      - astro_node_modules:/app/node_modules
+      - ./lidar-ui/node_modules:/app/node_modules
     expose:
       - 3000
     depends_on:
